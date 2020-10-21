@@ -32,22 +32,25 @@ int main(void)
         cout << "error,can't open file" << endl;
         return 0;
     }
-
+    in >> ch; //先输入再进入循环
     while (!in.eof())
     {
-        in >> ch;
         if (ch == '{' || ch == '[' || ch == '(')
-            Add(s, ch);
+            Add(s, ch); //若为开括号则进栈
         else if (ch == '}' || ch == ']' || ch == ')')
         {
+            //若为空栈报错
             if (IsEmpty(s))
                 right = true;
+            //若不匹配报错
             else if (check(ch) != Pop(s))
                 right = true;
         }
+        in >> ch;
     }
     if (!IsEmpty(s))
         right = true;
+
     if (right)
         cout << "Error" << endl;
     else
@@ -70,6 +73,7 @@ void Add(Stack &stack, char &in)
         exit(0);
     }
 
+    // 头插法处理节点
     newNode->next = stack->next;
     stack->next = newNode;
     newNode->ch = in;
@@ -130,6 +134,7 @@ char Pop(Stack &stack)
         return ch;
     }
 }
+
 char check(char &ch)
 {
     if (ch == ']')
