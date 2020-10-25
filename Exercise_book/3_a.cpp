@@ -118,4 +118,3 @@ void Change(List &list, int &pos)
     }
     list->arr[0] = tmp;
 }
-
