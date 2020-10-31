@@ -28,14 +28,14 @@ void TraversalTree(PtrTrnode &root);
 // 销毁树（递归方法）
 void DisPoseTree(PtrTrnode root);
 // 创建一个树节点
-static PtrTrnode MakeNode(string &);
+PtrTrnode MakeNode(string &);
 // 后缀转换成表达式树
 PtrTrnode PostfixToExpression(string &postfix);
 // 根据表达式树进行计算（递归方法）
 int Compute(Tree &root);
 
 //主要的步骤
-void manipulate(PtrTrnode &root);
+void manipulate(PtrTrnode &node);
 // 判断是否为操作符
 bool IsOperators(char &ch);
 // 计算并返回结果

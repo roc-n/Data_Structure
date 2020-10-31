@@ -1,13 +1,10 @@
 #ifndef _QUEUE_H_
 #define _QUEUE_H_
 #include "../include/bi_tree.h"
-#include <iostream>
-using namespace std;
+
 //定义存储节点
 typedef struct item
 {
-    //   int data;
-    //   string name = " ";
     PtrTrnode pt;
 } Item;
 //定义队列

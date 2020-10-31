@@ -2,15 +2,14 @@
 #define _STACK_H_
 #include "../include/bi_tree.h"
 #include <cstdlib>
-#include <iostream>
-using namespace std;
 
 struct StackRecord;
 typedef struct StackRecord *Stack;
-typedef struct stackItem
+typedef struct stackItem //栈存储的数据域
 {
     char ch;
     PtrTrnode pt;
+    string str;
 } * ptrItem;
 
 struct StackRecord

@@ -38,16 +38,24 @@ PtrTrnode DeQueue(Queue *pq)
     {
         fprintf(stdout, "Empty Queue");
     }
-    pq->front = (pq->front + 1) % (pq->maxSize);
     pq->size--;
-    return pq->arr[pq->front].pt;
+    PtrTrnode ret = pq->arr[pq->front].pt;
+    if (pq->size == 0)
+    {
+        pq->front = pq->rear = 0;
+    }
+    else
+    {
+        pq->front = (pq->front + 1) % (pq->maxSize);
+    }
+
+    return ret;
 }
 
 bool QueueIsEmpty(const Queue *pq) { return pq->size == 0; }
 bool QueueIsFull(const Queue *pq)
 {
-    return (pq->rear + 1) % (pq->maxSize) ==
-           pq->front; //若队尾的下一个节点为队首则说明已满
+    return (pq->rear + 1) % (pq->maxSize) == pq->front; //若队尾的下一个节点为队首则说明已满
 }
 
 void DiseposeQueue(Queue *pq)
