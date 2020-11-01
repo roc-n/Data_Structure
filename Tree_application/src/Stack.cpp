@@ -18,7 +18,7 @@ Stack CreateStack(int MaxElements)
         cout << "Out of Space";
         return NULL;
     }
-    S->array = (stackItem *)malloc(sizeof(stackItem) * MaxElements);
+    S->array = (ptrItem *)malloc(sizeof(ptrItem) * MaxElements);
     // malloc error
     if (S->array == NULL)
     {
@@ -26,14 +26,26 @@ Stack CreateStack(int MaxElements)
         return NULL;
     }
     S->capacity = MaxElements;
-    MakeEmpty(S);
+    S->wait = NULL;
+    S->topOfStack = -1;
     return S;
 }
 
-void MakeEmpty(Stack S) { S->topOfStack = -1; }
+void MakeEmpty(Stack S)
+{
+    while (S->topOfStack != -1)
+    {
+        free(S->array[S->topOfStack--]);
+    }
+    if (S->wait != NULL)
+    {
+        free(S->wait);
+    }
+}
 
 void DisposeStack(Stack S)
 {
+    MakeEmpty(S);
     if (S != NULL)
     {
         free(S->array);
@@ -42,6 +54,7 @@ void DisposeStack(Stack S)
 }
 
 int IsEmpty(Stack S) { return S->topOfStack == Empty_0; }
+
 int IsFull(Stack S) { return S->topOfStack == S->capacity; }
 
 void Push(stackItem &x, Stack S)
@@ -53,7 +66,10 @@ void Push(stackItem &x, Stack S)
     }
     else
     {
-        S->array[++S->topOfStack] = x;
+        ptrItem newNode = new stackItem;
+        *newNode = x;
+        S->topOfStack++;
+        S->array[S->topOfStack] = newNode;
     }
 }
 
@@ -61,7 +77,7 @@ void Push(stackItem &x, Stack S)
 ptrItem Top(Stack S)
 {
     if (!IsEmpty(S))
-        return &(S->array[S->topOfStack]);
+        return S->array[S->topOfStack];
     cout << "Empty Stack!" << endl;
     return nullptr;
 }
@@ -74,14 +90,21 @@ void Pop(Stack S)
     }
     else
     {
-        S->topOfStack--;
+        free(S->array[S->topOfStack--]);
     }
 }
 
 ptrItem TopAndPop(Stack S)
 {
+    if (S->wait != NULL)
+    {
+        free(S->wait);
+    }
     if (!IsEmpty(S))
-        return &(S->array[S->topOfStack--]);
+    {
+        S->wait = S->array[S->topOfStack--];
+        return S->wait;
+    }
     cout << "Empty Stack" << endl;
     return nullptr;
 }

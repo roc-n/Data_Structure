@@ -4,7 +4,7 @@
 #include <cstring>
 
 static bool GetElements(string &postfix, string &str);
-
+static void GetFileName(string &name);
 // 中缀转后缀
 string InfixToPostfix(string &nifix)
 {
@@ -13,9 +13,9 @@ string InfixToPostfix(string &nifix)
     Stack operations = CreateStack(20);
     Stack operators = CreateStack(20);
 
-    stackItem tmpItem; //定义栈数据域，ch进行存储
-    ptrItem pt;        //定义指向栈数据域的指针，在出栈时进行存储
-    string postfix;    //存储最后转化后的后缀表达式
+    stackItem tmpItem;   //定义栈数据域，ch进行存储
+    ptrItem pt;          //定义指向栈数据域的指针，在出栈时进行存储
+    string postfix = ""; //存储最后转化后的后缀表达式
     string str;
     char ch;
     // 从左向右遍历中缀表达式
@@ -24,7 +24,6 @@ string InfixToPostfix(string &nifix)
     {
         ch = nifix[i];
         tmpItem.str = nifix[i];
-
         // 若字符为运算符
         if (IsOperators(nifix[i]))
         {
@@ -35,10 +34,22 @@ string InfixToPostfix(string &nifix)
             else if (ch == ')') //字符为')'时将()之间的所有operator Pop
             {
                 pt = TopAndPop(operators);
+                if (pt->str != "(")
+                {
+                    throw "Error";
+                }
                 while (pt->str != "(" && !IsEmpty(operators))
                 {
                     Push(*pt, operations);
+                    if (IsEmpty(operators))
+                    {
+                        break;
+                    }
                     pt = TopAndPop(operators);
+                }
+                if (pt->str != "(")
+                {
+                    throw "Error";
                 }
             }
             else if (IsAddOrSub(ch)) //字符为'+'或‘-’时将‘(’之前的所有operator Pop,或一直Pop到栈空，最后将自己Push
@@ -59,7 +70,7 @@ string InfixToPostfix(string &nifix)
             else //字符为'*'或‘/’时将‘(’之前的优先级与它相等的或更高的operator Pop,或一直Pop到栈空,最后将自己Push
             {
                 pt = Top(operators);
-                while (!IsEmpty(operators) && pt->str != "(" && !IsAddOrSub(pt->ch))
+                while (!IsEmpty(operators) && pt->str != "(" && !IsAddOrSub(pt->str[0]))
                 {
                     Push(*pt, operations);
                     Pop(operators);
@@ -75,15 +86,14 @@ string InfixToPostfix(string &nifix)
                 int j = i + 1;
                 char l = nifix[j];
                 while (!IsOperators(l) && j != nifix.length())
-                {
                     l = nifix[++j];
-                }
-                str = nifix.substr(i, j);
-                tmpItem.str = str;
+                tmpItem.str = nifix.substr(i, j - i);
                 i = j;
+                Push(tmpItem, operations);
+                continue;
             }
-            Push(tmpItem, operations);
-            continue;
+            else
+                Push(tmpItem, operations);
         }
         i++;
     }
@@ -96,15 +106,13 @@ string InfixToPostfix(string &nifix)
             Push(*pt, operations);
         } while (!IsEmpty(operators));
     }
-    
+
     // 出栈并串接
     while (!IsEmpty(operations))
     {
-        postfix += " ";
         pt = TopAndPop(operations);
-        postfix += pt->str;
+        postfix = pt->str + " " + postfix;
     }
-    reverse(postfix.begin(), postfix.end()); //恢复正向
     cout << postfix << endl;
 
     DisposeStack(operations);
@@ -126,6 +134,7 @@ PtrTrnode PostfixToExpression(string &postfix)
     while (on)
     {
         on = GetElements(postfix_copy, str);
+        cout << str << endl;
         curItem.pt = MakeNode(str);
 
         if (IsOperators(str[0]))
@@ -147,6 +156,7 @@ PtrTrnode PostfixToExpression(string &postfix)
         throw "Error";
     }
 
+    DisposeStack(S);
     return curItem.pt;
 }
 
@@ -170,32 +180,29 @@ PtrTrnode MakeNode(string &str)
 
 void Read(Tree &tr)
 {
-    //借助队列,层序创建完全二叉树
     fstream in;
-    int max = 200;
+    string name;
+    GetFileName(name);
+    in.open("include/" + name, ios::in);
 
-    Queue *tmpQueue = InitQueue(max); //创建一个临时队列用以存储创建的节点
-    Item tmpItem;                     //临时存储队列中的对象
-
-    in.open("include/A.txt", ios::in);
     if (in.fail())
     {
         cout << "Error,Can't open the file.";
         return;
     }
+    /*借助队列,层序创建完全二叉树*/
 
-    // if (in.eof())
-    // {
-    //     cout << "Empty file!" << endl;
-    //     return;
-    // }
-    string tmp;
+    int max = 200;                    //设定队列容量
+    Queue *tmpQueue = InitQueue(max); //创建一个临时队列用以存储创建的节点
+    Item tmpItem;                     //临时存储队列中的对象
+
+    string tmpStr;
     PtrTrnode pt;  //存储新创建的节点
     PtrTrnode cur; //记录当前节点所在位置
     while (!in.eof())
     {
-        in >> tmp;
-        pt = MakeNode(tmp);
+        in >> tmpStr;
+        pt = MakeNode(tmpStr);
         if (tr->root == NULL) //当节点为根结点时
         {
             tr->root = pt;
@@ -214,6 +221,7 @@ void Read(Tree &tr)
             EnQueue(tmpItem, tmpQueue);
             cur = DeQueue(tmpQueue); //右孩子创建后更新当前节点
         }
+        tr->size++;
     }
 }
 
@@ -229,24 +237,24 @@ void TraversalTree(PtrTrnode &root)
 {
     int max = 200;             //暂时存储树节点队列的最大值
     Queue *Q = InitQueue(max); //定义存储树节点队列
-
-    Item tmpItem; //暂时存储队列节点信息
+    Item tmpItem;              //暂时存储队列节点信息
     tmpItem.pt = root;
     Item mid;
     int errorEx = 0, rightEx = 0; //记录正确与错误表达式数量
 
     if (root == NULL)
     {
+        cout << "Empty Tree!" << endl;
         return;
     }
 
-    EnQueue(tmpItem, Q);
+    EnQueue(tmpItem, Q); //将根结点入队
     while (!QueueIsEmpty(Q))
     {
         tmpItem.pt = DeQueue(Q);
         try
         {
-            manipulate(tmpItem.pt);
+            Manipulate(tmpItem.pt);
             rightEx++;
         }
         catch (const char *e)
@@ -265,34 +273,29 @@ void TraversalTree(PtrTrnode &root)
         }
     }
 
-    fstream record;
-    record.open("record.txt", ios::out);
-    record << "执行运算时间：" << endl;
-    record << "总的表达式数量为：" << rightEx + errorEx << endl;
-    record << "正确表达式数量为 :   " << rightEx << endl;
-    record << "错误表达式数量为：" << errorEx;
+    Write(errorEx, rightEx);
 }
 
-int Compute(PtrTrnode &node)
+double Compute(PtrTrnode &node)
 {
     if (!node) //空节点返回0
     {
         return 0;
     }
     //递归调用，从叶子节点从左往右，从下往上计算
-    int a = Compute(node->left);
-    int b = Compute(node->right);
+    double a = Compute(node->left);
+    double b = Compute(node->right);
     char ch = node->expression[0];
     if (IsOperators(ch))
     {
-        int result = results(node->expression, a, b);
+        double result = results(node->expression, a, b);
         return result;
     }
-    int num = stoi(node->expression);
+    double num = stod(node->expression);
     return num;
 }
 
-int results(string &expression, int a, int b)
+double results(string &expression, double a, double b)
 {
     if (expression == "+")
     {
@@ -334,16 +337,25 @@ bool IsAddOrSub(char &ch)
     }
 }
 
-void manipulate(PtrTrnode &node)
+void Manipulate(PtrTrnode &node)
 {
     string infix = node->expression;
-    // string infix = "(1+2)*3";
     string postfix = InfixToPostfix(infix);
     PtrTrnode ExpressionRoot = PostfixToExpression(postfix);
-    int result = Compute(ExpressionRoot);
+    double result = Compute(ExpressionRoot);
 
     fstream out;
     out.open("include/A1_out.txt", ios::out | ios::app);
+
+    if (int(result) == result)
+    {
+        result = int(result);
+    }
+    else
+    {
+        out << setiosflags(ios::fixed) << setprecision(4);
+    }
+
     out << infix << "   "
         << "="
         << "  " << result << endl;
@@ -357,4 +369,20 @@ static bool GetElements(string &postfix, string &str)
         return false;
     postfix = postfix.substr(index + 1);
     return true;
+}
+
+static void GetFileName(string &name)
+{
+    cout << "Enter the name of file:" << endl;
+    cin >> name;
+}
+
+void Write(int errorEx, int rightEx)
+{
+    fstream record;
+    record.open("record.txt", ios::out);
+    record << "执行运算时间：" << endl;
+    record << "总的表达式数量为：" << rightEx + errorEx << endl;
+    record << "正确表达式数量为 :  " << rightEx << endl;
+    record << "错误表达式数量为：" << errorEx;
 }
