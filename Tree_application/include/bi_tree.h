@@ -1,6 +1,7 @@
 #ifndef _BI_TREE_H_
 #define _BI_TREE_H_
 #include <algorithm>
+#include <ctime>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -41,6 +42,7 @@ double Compute(Tree &root);
 /*
 与树不相关函数
 */
+
 //主要的步骤，包括前缀转后缀，后缀转表达式树，利用表达式计算
 void Manipulate(PtrTrnode &node);
 // 判断是否为操作符
@@ -52,5 +54,5 @@ bool IsAddOrSub(char &);
 // 中缀转后缀
 string InfixToPostfix(string &nifix);
 //生成统计文件
-void Write(int errorEx, int rightEx);
+void Write(int errorEx, int rightEx, double duration);
 #endif

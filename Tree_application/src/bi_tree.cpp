@@ -34,7 +34,7 @@ string InfixToPostfix(string &nifix)
             else if (ch == ')') //字符为')'时将()之间的所有operator Pop
             {
                 pt = TopAndPop(operators);
-                if (pt->str != "(")
+                if (pt->str == "(")
                 {
                     throw "Error";
                 }
@@ -235,6 +235,9 @@ Tree CreateTree()
 
 void TraversalTree(PtrTrnode &root)
 {
+    clock_t start, end;
+    double duration;
+    start = clock();
     int max = 200;             //暂时存储树节点队列的最大值
     Queue *Q = InitQueue(max); //定义存储树节点队列
     Item tmpItem;              //暂时存储队列节点信息
@@ -272,8 +275,9 @@ void TraversalTree(PtrTrnode &root)
             EnQueue(mid, Q);
         }
     }
-
-    Write(errorEx, rightEx);
+    end = clock();
+    duration = (double)(end - start) / CLOCKS_PER_SEC;
+    Write(errorEx, rightEx, duration);
 }
 
 double Compute(PtrTrnode &node)
@@ -377,11 +381,11 @@ static void GetFileName(string &name)
     cin >> name;
 }
 
-void Write(int errorEx, int rightEx)
+void Write(int errorEx, int rightEx, double duration)
 {
     fstream record;
     record.open("record.txt", ios::out);
-    record << "执行运算时间：" << endl;
+    record << "执行运算时间：         " << duration << "s" << endl;
     record << "总的表达式数量为：" << rightEx + errorEx << endl;
     record << "正确表达式数量为 :  " << rightEx << endl;
     record << "错误表达式数量为：" << errorEx;
