@@ -16,6 +16,11 @@
     "code-runner.ignoreSelection": true,   // 默认为false，效果是鼠标选中一块代码后可以单独执行，但C是编译型语言，不适合这样用
     "C_Cpp.clang_format_sortIncludes": true,
     "terminal.integrated.enableBell": true,
+    "files.associations": {
+        "fstream": "cpp",
+        "string": "cpp",
+        "unordered_map": "cpp"
+    },
     // "cmake.configureOnOpen": false,
     // -fexec-charset=GBK
 }
