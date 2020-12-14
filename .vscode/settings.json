@@ -21,6 +21,7 @@
         "string": "cpp",
         "unordered_map": "cpp"
     },
+    "cmake.configureOnOpen": false,
     // "cmake.configureOnOpen": false,
     // -fexec-charset=GBK
 }
