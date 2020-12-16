@@ -1,10 +1,40 @@
-#include "../include/map_adjMatrix.h"
 #include <fstream>
 #include <iostream>
 using namespace std;
-// using namespace Matrix;
 
-void Matrix::Init(Graph &map) {
+#define MAX_V 50
+// 点的结构，含标号
+typedef struct {
+  int num;
+  // InfoType info 顶点其他信息
+} Vertex;
+// 边的结构，含两端点
+typedef struct {
+  int v1;
+  int v2;
+} Edge;
+// 定义图结构
+typedef struct {
+  int edges[MAX_V][MAX_V]; //采用邻接矩阵存储边
+  int vertex_num, arc_num;
+  Vertex vex[MAX_V];
+} Graph;
+//初始化图
+void Init(Graph &map);
+//从文件读取信息并设置参树
+void Read(Graph &map);
+// 展现图的边
+void Display_edge(Graph &map);
+
+int main(void) {
+  Graph map;
+  Init(map);
+  Read(map);
+  Display_edge(map);
+  return 0;
+}
+
+void Init(Graph &map) {
   map.vertex_num = map.arc_num = 0;
   for (int i = 0; i < MAX_V; i++) {
     for (int j = 0; j < MAX_V; j++) {
@@ -12,13 +42,14 @@ void Matrix::Init(Graph &map) {
     }
   }
 }
-void Matrix::Read(Graph &map) {
+void Read(Graph &map) {
   fstream in;
   in.open("data.txt", ios::in);
   //   编号
   string number;
-  //   起点，终点()
+  //   起点，终点
   int v1, v2;
+
   Vertex v;
   if (in.fail()) {
     cout << "Fail to open the file" << endl;
@@ -52,10 +83,10 @@ void Matrix::Read(Graph &map) {
   }
   in.close();
 }
-void Matrix::Display_edge(Graph &map) {
+void Display_edge(Graph &map) {
   for (int i = 0; i < MAX_V; i++) {
-    for (int j = 0; j < MAX_V; j++) {
-      if (i <= j && map.edges[i][j] == 1) {
+    for (int j = i; j < MAX_V; j++) {
+      if (map.edges[i][j] == 1) {
         cout << "There is an edge between " << i + 1 << " and " << j + 1
              << endl;
       }
