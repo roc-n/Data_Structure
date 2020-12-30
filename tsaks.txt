@@ -1,3 +1,0 @@
-kill_head 0 4
-travel 2 6
-go_home 3 8
