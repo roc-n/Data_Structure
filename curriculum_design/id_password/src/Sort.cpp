@@ -1,12 +1,16 @@
 #include "../include/Sort.h"
 #include <iostream>
+#include <memory>
+#include <vector>
+
 using namespace std;
 /*
 快速排序辅助函数
 */
 static ptrToItem GetPivot(ptrToItem arr[], int start,
-                          int end); // 三数-中值法得到枢纽元
+                          int end);           // 三数-中值法得到枢纽元
 static void Swap(ptrToItem &a, ptrToItem &b); //交换值
+static void QuickSortCore(ptrToItem *arr, int start, int end);
 /*
 堆排序辅助函数
 */
@@ -65,7 +69,7 @@ void ShellSort(ptrToItem arr[], int n) {
   }
 }
 
-void QuickSort(ptrToItem arr[], int start, int end) {
+void QuickSortCore(ptrToItem arr[], int start, int end) {
   // 出口条件,即只有一个或两个待排数据
   if (end - start == 1 || end == start) {
     if (LessThan(arr[end], arr[start])) {
@@ -104,9 +108,11 @@ void QuickSort(ptrToItem arr[], int start, int end) {
   // 将pivot与i处数据交换完成排序
   Swap(arr[i], arr[end]);
   // 递归排序左右两边
-  QuickSort(arr, start, j);
-  QuickSort(arr, i + 1, end);
+  QuickSortCore(arr, start, j);
+  QuickSortCore(arr, i + 1, end);
 }
+
+void QuickSort(ptrToItem arr[], int n) { QuickSortCore(arr, 0, n - 1); }
 
 static ptrToItem GetPivot(ptrToItem arr[], int start, int end) {
   int left = arr[start]->num;
@@ -223,8 +229,9 @@ void MergeSort(ptrToItem arr[], int n) {
   }
 }
 
-void BubbleSort(vector<ptrToItem> &arr, int n) {
+void BubbleSort(ptrToItem arr[], int n) {
   for (int i = 0; i < n - 1; i++) {
+    cout << i << endl;
     for (int j = 0; j < n - 1; j++) {
       if (LessThan(arr[j + 1], arr[j])) {
         Swap(arr[j], arr[j + 1]);
@@ -236,10 +243,13 @@ void BubbleSort(vector<ptrToItem> &arr, int n) {
 void ChooseSort(ptrToItem arr[], int n) {
   ptrToItem min;
   int min_index;
-  for (int i = 0; i < n - 1; i++) {
+  int i, j;
+  i = 0;
+  for (i = 0; i < n - 1; i++) {
     min = arr[i];
     min_index = i;
-    for (int j = i + 1; j < n; j++) {
+    cout << i << endl;
+    for (j = i + 1; j < n; j++) {
       if (LessThan(arr[j], min)) {
         min = arr[j];
         min_index = j;
@@ -247,6 +257,7 @@ void ChooseSort(ptrToItem arr[], int n) {
     }
     Swap(arr[min_index], arr[i]);
   }
+  cout << "You are right" << endl;
 }
 
 ptrToItem GetMax(ptrToItem arr[], int n) {
@@ -260,8 +271,8 @@ ptrToItem GetMax(ptrToItem arr[], int n) {
 }
 
 void CountSort(ptrToItem arr[], int n, int exp) {
-  ptrToItem output[n];
-  int i;
+  unique_ptr<ptrToItem[]> output(new ptrToItem[n]);
+  int i = 0;
   int buckets[10] = {0};
   for (i = 0; i < n; i++) {
     buckets[(arr[i]->num / exp) % 10]++;
@@ -269,6 +280,7 @@ void CountSort(ptrToItem arr[], int n, int exp) {
   for (i = 1; i < 10; i++) {
     buckets[i] += buckets[i - 1];
   }
+
   for (i = n - 1; i >= 0; i--) {
     output[buckets[(arr[i]->num / exp) % 10] - 1] = arr[i];
     buckets[(arr[i]->num / exp) % 10]--;
@@ -292,3 +304,4 @@ void Inverse(ptrToItem arr[], int n) {
     Swap(arr[i], arr[n - 1 - i]);
   }
 }
+
