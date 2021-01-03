@@ -1,49 +1,30 @@
+#ifndef _HASH_
+#define _HASH_
 #include "User.h"
 #include <string>
+#define ull unsigned long long
 using std::string;
-// 哈希元组
-typedef struct HashTuple {
-  int value1;
-  int value2;
-} * tuples;
 
 class Hash {
 private:
-  int value1;
-  int value2;
-  tuples *tuple;
-
+  // 哈希函数计算的参数
+  ull p1 = 786433, p2 = 393241;
+  ull mod = 1000000007;
+  // 决定哈希函数以哪个质数进行计算
+  bool first;
+  // 记录下标值
   int index;
+  // 指针数组,地址为哈希函数值
+  ptrToItem *arr;
 
 public:
-  int &operator[](string &pwd);
-  Hash(int n);
+  // 重载运算符,以密码作为下标返回出现次数
+  ptrToItem &operator[](string &pwd);
+  // 哈希函数的计算
+  void Calculate(string &pwd, bool first);
+  // 键-值对应存储
+  void Store(Item &item);
+  Hash();
   ~Hash();
-  tuples DoubleHash(string &pwd);
-  void Check();
 };
-
-inline int &Hash::operator[](string &pwd) {
-  this->tuple[index] = DoubleHash(pwd);
-  return index;
-}
-
-inline tuples Hash::DoubleHash(string &pwd) {
-  tuples tuple = new HashTuple;
-  int p1 = 786433, mod1 = 200;
-  int p2 = 393241, mod2 = 234;
-  for (int i = 1; i < pwd.length(); i++) {
-    tuple->value1 = (tuple->value1 * p1 + (int)pwd.at(i)) % mod1;
-  }
-  for (int j = 1; j < pwd.length(); j++) {
-    tuple->value2 = (tuple->value2 * p2 + (int)pwd.at(j)) % mod2;
-  }
-  return tuple;
-}
-
-inline Hash::Hash(int n) {
-  tuple = (tuples *)new tuples[n];
-  index = -1;
-}
-
-inline Hash::~Hash() { delete[] tuple; }
+#endif

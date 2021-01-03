@@ -1,5 +1,6 @@
 #include "../include/User.h"
 #include "../include/AvlTree.h"
+#include "../include/Hash.h"
 #include "../include/LinkedList.h"
 #include "../include/Sort.h"
 #include <cstdlib>
@@ -16,6 +17,7 @@ static void ApplySort(ptrToItem arr[], int size);
 static void ApplyListSearch(linkedList &l);
 static void ApplyTreeSearch(avlTree &T);
 static void ApplyBinarySearch(ptrToItem arr[], int size);
+static void ApplyHashSearch(Hash &hash);
 void User::Generate_Passsword_File() {
   fstream file;
   file.open("./include/user.txt", ios::in);
@@ -86,7 +88,6 @@ void User::SortPassword() {
   }
   delete[] arr;
 }
-
 
 static void ApplySort(ptrToItem arr[], int size) {
   // 创建函数指针数组,方便循环
@@ -329,4 +330,49 @@ ptrToItem BinarySearch(ptrToItem arr[], int size, int target) {
     }
   }
   return nullptr;
+}
+
+void User::ReadToHash() {
+  Hash hash;
+  fstream file;
+  file.open("./include/password.txt", ios::in);
+  if (file.fail()) {
+    cout << "Erroe,Can't open the file." << endl;
+    return;
+  }
+
+  Item tmp;
+  while (!file.eof() && file.peek() != EOF) {
+    file >> tmp.num;
+    file >> tmp.password;
+    hash.Store(tmp);
+    file.get();
+  }
+  ApplyHashSearch(hash);
+}
+
+static void ApplyHashSearch(Hash &hash) {
+  srand(time(0));
+  string pwd;
+  ifstream in("./include/pwd.txt");
+  // 记录查找花费的总时间
+  double totalTime = 0;
+  clock_t startTime, endTime;
+  // 存储查找返回的结果
+  ptrToItem item;
+
+  while (!in.eof() && in.peek() != EOF) {
+    in >> pwd;
+    startTime = clock();
+    item = hash[pwd];
+    endTime = clock();
+    totalTime += (double)(endTime - startTime) / CLOCKS_PER_SEC;
+    if (item != nullptr) {
+      cout << item->password << "\t" << item->num << endl;
+    } else {
+      cout << "Not find" << endl;
+    }
+    in.get();
+  }
+  cout << "The search process costs " << totalTime << " s" << endl;
 }

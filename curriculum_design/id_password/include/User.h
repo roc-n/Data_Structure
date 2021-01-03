@@ -20,7 +20,7 @@ public:
   void ReadToList();
   void ReadToTree();
   void BinarySearch();
-  // void Hash(string str, HashTuple &tuple);
+  void ReadToHash();
 };
 ptrToItem BinarySearch(ptrToItem arr[], int size, int target);
 #endif
