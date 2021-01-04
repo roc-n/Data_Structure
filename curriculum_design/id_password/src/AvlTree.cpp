@@ -44,6 +44,7 @@ static position DoubleRotateWithRight(position k1) {
   k1->right = SingleRotateWithLeft(k1->right);
   return SingleRotateWithRight(k1);
 }
+
 avlTree Insert(Item &item, avlTree T) {
   ptrToItem p_new, p_T;
   if (T == nullptr) {
@@ -53,7 +54,7 @@ avlTree Insert(Item &item, avlTree T) {
     T->item = item;
   } else {
     p_new = &item;
-    p_T = &T->item;
+    p_T = &(T->item);
     if (LessThan(p_new, p_T)) {
       T->left = Insert(item, T->left);
       if (Height(T->left) - Height(T->right) == 2) {

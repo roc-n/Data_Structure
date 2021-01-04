@@ -1,4 +1,8 @@
 #ifndef _HASH_
+/*
+  哈希函数的声明,以类封装,采取开放寻址法中的再哈希策略,即发生冲突时采取不同的参数再次计算哈希值,直到遇到未被填充的槽位
+*/
+
 #define _HASH_
 #include "User.h"
 #include <string>

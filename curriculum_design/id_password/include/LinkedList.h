@@ -1,3 +1,7 @@
+/*
+  链表的声明,包含增删查改等功能
+*/
+
 #ifndef _LINKEDLIST_
 #define _LINKEDLIST_
 #include "../include/User.h"
@@ -14,13 +18,13 @@ typedef struct list {
   PtrToNode end;
   int items;
 } List, *linkedList;
-linkedList CreateList(linkedList &l);    //创建链表
-void AddNode(linkedList &l);             //添加节点
-void GetInfo(linkedList &l, Item &item); //得到信息
-void Add(linkedList &l, Item &item);     //添加数据
-bool IsEmpty(linkedList &l);             //判断链表是否为空
-void Delete(linkedList &l);              //删除节点
-ptrToItem Search(linkedList &l,int data);              //查找数据
-void MakeEmpty(linkedList &l);           //清空链表
-void Dispose(linkedList &l);             //销毁链表
+linkedList CreateList(linkedList &l);      //创建链表
+void AddNode(linkedList &l);               //添加节点
+void GetInfo(linkedList &l, Item &item);   //得到信息
+void Add(linkedList &l, Item &item);       //添加数据
+bool IsEmpty(linkedList &l);               //判断链表是否为空
+void Delete(linkedList &l);                //删除节点
+ptrToItem Search(linkedList &l, int data); //查找数据
+void MakeEmpty(linkedList &l);             //清空链表
+void Dispose(linkedList &l);               //销毁链表
 #endif
