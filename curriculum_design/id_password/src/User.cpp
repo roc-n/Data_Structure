@@ -148,20 +148,12 @@ static void ApplyListSearch(linkedList &l) {
   clock_t startTime, endTime;
   // 存储查找返回的结果
   ptrToItem item;
-  for (i = 0; i < 20; ++i) {
-    number = rand() % 1250001;
-    startTime = clock();
-    item = Search(l, number);
-    endTime = clock();
-    if (item != nullptr) {
-      totalTime += (double)(endTime - startTime) / CLOCKS_PER_SEC;
-      cout << item->num << "\t" << item->password << endl;
+  for (i = 0; i < 25; ++i) {
+    if (i < 20) {
+      number = rand() % 1000001;
     } else {
-      cout << "Not find" << endl;
+      number = rand() % 1000001 + 1000001;
     }
-  }
-  for (i = 0; i < 5; ++i) {
-    number = rand() % 1250001 + 1250001;
     startTime = clock();
     item = Search(l, number);
     endTime = clock();
@@ -230,7 +222,7 @@ void User::Generate_Userid_File() {
   fstream file;
   file.open("./include/user.txt", ios::in);
   if (file.fail()) {
-    cout << "Erroe,Can't open the file." << endl;
+    cout << "Error,Can't open the file." << endl;
     return;
   }
 
