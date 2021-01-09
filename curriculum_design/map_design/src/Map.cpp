@@ -7,7 +7,7 @@ using namespace std;
 
 void Map::Read() {
   fstream in;
-  in.open("../include/data.txt", ios::in);
+  in.open("./include/data.txt", ios::in);
   // 顶点代号
   string code_name;
   // 暂时存储从文件读入的边和顶点信息
@@ -97,4 +97,5 @@ Map::Map() {
   for (int i = 0; i < MAX_V; i++) {
     adjList[i].firstArc = adjList[i].lastArc = nullptr;
   }
+  Read();
 }

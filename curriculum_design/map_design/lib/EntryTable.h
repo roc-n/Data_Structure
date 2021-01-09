@@ -2,7 +2,7 @@
 #define _ENTRYTABLE_
 #define NullVertex -1
 #define Infinity -1
-#define ZEROS -1
+// 令vertex代指int
 typedef int vertex;
 #include "Map.h"
 // 动态表中每个顶点需要存储的信息
