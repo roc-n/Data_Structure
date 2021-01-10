@@ -47,7 +47,7 @@ public:
 
   friend void TopSort(Map &map, int top_arr[]);
   friend void Get_Indegree(Map &map, int arr[]);
-  friend class Table;
+  // friend class Table;
   friend class Plan;
 };
 void DisplaySort(int top_arr[], int n);

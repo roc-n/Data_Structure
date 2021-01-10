@@ -93,7 +93,7 @@ void Plan::Gather_Strategy() {
   // 每学期起始课程
   vector<int> courses;
   // 每学期修的学分
-  int credit;
+  int credit = 0;
   // 迭代器
   set<int>::iterator itor;
   courses = first_class;
@@ -104,9 +104,7 @@ void Plan::Gather_Strategy() {
       arr[i].push_back(*itor);
       un_courses.erase(*itor);
     }
-    // for (int j = 0; j < arr[i].size(); ++j) {
-    //   cout << arr[i][j] << endl;
-    // }
+
     one_term_courses.clear();
     courses.clear();
 
@@ -159,51 +157,29 @@ void Plan::Average_Strategy() {
 // 递归计算一个学期所能学习的最多课程
 void Plan::Calculate_Max(vector<int> &courses, int &credits,
                          set<int> &one_term_courses, vector<int> &indegree) {
-  // 添加学分并存储顶点
-  for (int i = 0; i < courses.size(); ++i) {
-    if (credits + map.adjList[courses[i]].v.credit <= limit_per) {
-      credits += map.adjList[courses[i]].v.credit;
-      one_term_courses.insert(courses[i]);
-      UpdateInderee(indegree, courses[i]);
-    } else {
-      return;
-    }
-  }
-  // 存储被点亮的顶点
+
+  // 存储被点亮的顶点(递归调用的参数)
   vector<int> v;
-  // 迭代
+  // 迭代与一个顶点相邻的所有顶点
   Edge cur;
-  // 将传进来的顶点指向的且符合拓扑逻辑的顶点逐个点亮
-  for (int i = 0; i < courses.size(); ++i) {
-    cur = map.adjList[courses[i]].firstArc;
-    while (cur != nullptr) {
-      // 判断入度是否为0
-      if (indegree[cur->end] == 0) {
-        v.push_back(cur->end);
-      }
-      cur = cur->next;
-    }
-  }
   //  存储所有组合中的元素，组合之间没重合，元素之间有重合
   vector<int> store_arr;
-  //  要传入递归函数的子顶点
-  vector<int> sub_courses;
+  //  每种具体的组合
+  vector<int> single_combo;
 
   // 组合数
   int C = 0;
+  // 暂时存储当前位置的已修课程,已修学分,各顶点入度
   set<int> last_set = one_term_courses;
   int last_credits = credits;
   vector<int> last_indegree = indegree;
 
-  // 计算n为不同值情况下各组合情况
+  // 计算各组合元素数n下的组合情况
   int j = 1;
-  int size = v.size();
+  while (j <= courses.size()) {
+    Calculate_Combination(j, courses, store_arr);
+    C = store_arr.size() / j; //总组合的元素数/单个组合元素数得到组合数
 
-  while (j <= size) {
-    cout << v.size();
-    Calculate_Combination(j, v, store_arr);
-    cout << v.size() << endl;
-    C = store_arr.size() / j;
     // 建立当前位置副本，数量与计算到的组合数相等，想象成支线，每条线都要走一遍
     int *sub_credits = new int[C];
     set<int> *sub_set = new set<int>[C];
@@ -214,11 +190,34 @@ void Plan::Calculate_Max(vector<int> &courses, int &credits,
       sub_set[i] = one_term_courses;
       sub_indegree[i] = indegree;
     }
-    // 将当前组合全部走一遍
+
+    // 将当前组合全部走一遍,k迭代元素,count迭代组合
     for (int k = 0, count = 0; k < store_arr.size(); k++) {
-      sub_courses.push_back(store_arr[k]);
-      if (sub_courses.size() % j == 0) {
-        Calculate_Max(sub_courses, sub_credits[count], sub_set[count],
+      single_combo.push_back(store_arr[k]);
+      if (single_combo.size() % j == 0) {
+        // 添加学分并存储顶点
+        for (int i = 0; i < single_combo.size(); ++i) {
+          if (sub_credits[count] + map.adjList[single_combo[i]].v.credit <=
+              limit_per) {
+            sub_credits[count] += map.adjList[single_combo[i]].v.credit;
+            sub_set[count].insert(single_combo[i]);
+            UpdateInderee(sub_indegree[count], single_combo[i]);
+          }
+        }
+
+        // 将每种组合下的顶点指向的且符合拓扑逻辑的顶点逐个点亮
+        for (int i = 0; i < single_combo.size(); ++i) {
+          cur = map.adjList[single_combo[i]].firstArc;
+          while (cur != nullptr) {
+            // 判断入度是否为0
+            if (sub_indegree[count][cur->end] == 0) {
+              v.push_back(cur->end);
+            }
+            cur = cur->next;
+          }
+        }
+
+        Calculate_Max(v, sub_credits[count], sub_set[count],
                       sub_indegree[count]);
         //更新学分与本学期课程
         if (sub_credits[count] > last_credits) {
@@ -228,11 +227,11 @@ void Plan::Calculate_Max(vector<int> &courses, int &credits,
         }
         // 走完一条路径后换用另一套副本
         count++;
-        sub_courses.clear();
+        v.clear();
+        single_combo.clear();
       }
     }
-    j = j + 1;
-
+    j++;
     store_arr.clear();
     delete[] sub_credits;
     delete[] sub_set;
@@ -298,27 +297,18 @@ void Plan::Calculate_Average(vector<int> &courses, int &credits,
       return;
     }
   }
-  // 存储被点亮的顶点
+  // 存储被点亮的顶点(递归调用的参数)
   vector<int> v;
   // 迭代
   Edge cur;
-  // 将传进来的顶点指向的且符合拓扑逻辑的顶点逐个点亮
-  for (int i = 0; i < courses.size(); ++i) {
-    cur = map.adjList[courses[i]].firstArc;
-    while (cur != nullptr) {
-      if (indegree[courses[i]] == 0) {
-        v.push_back(cur->end);
-      }
-      cur = cur->next;
-    }
-  }
   //  存储所有组合中的元素，组合之间没重合，元素之间有重合
   vector<int> store_arr;
-  //  要传入递归函数的子顶点
-  vector<int> sub_courses;
+  // 具体的组合
+  vector<int> single_combo;
 
   // 组合数
   int C = 0;
+  // 暂时存储当前位置的已修课程,已修学分,各顶点入度
   set<int> last_set = one_term_courses;
   int last_credits = credits;
   vector<int> last_indegree = indegree;
@@ -331,26 +321,51 @@ void Plan::Calculate_Average(vector<int> &courses, int &credits,
     int *sub_credits = new int[C];
     set<int> *sub_set = new set<int>[C];
     vector<int> *sub_indegree = (vector<int> *)new vector<int>[C];
+    // 初始化副本
     for (int i = 0; i < C; ++i) {
       sub_credits[i] = credits;
       sub_set[i] = one_term_courses;
       sub_indegree[i] = indegree;
     }
 
+    // 将当前组合全部走一遍,k迭代元素,count迭代组合
     for (int k = 0, count = 0; k < store_arr.size(); k++) {
-      sub_courses.push_back(store_arr[k]);
-      if (sub_courses.size() % j == 0) {
-        Calculate_Average(sub_courses, sub_credits[count], sub_set[count],
-                          sub_indegree[count]);
+      single_combo.push_back(store_arr[k]);
+      if (single_combo.size() % j == 0) {
+        // 添加学分并存储顶点
+        for (int i = 0; i < single_combo.size(); ++i) {
+          if (sub_credits[count] + map.adjList[single_combo[i]].v.credit <=
+              limit_per) {
+            sub_credits[count] += map.adjList[single_combo[i]].v.credit;
+            sub_set[count].insert(single_combo[i]);
+            UpdateInderee(sub_indegree[count], single_combo[i]);
+          }
+        }
+
+        // 将每种组合下的顶点指向的且符合拓扑逻辑的顶点逐个点亮
+        for (int i = 0; i < single_combo.size(); ++i) {
+          cur = map.adjList[single_combo[i]].firstArc;
+          while (cur != nullptr) {
+            // 判断入度是否为0
+            if (sub_indegree[count][cur->end] == 0) {
+              v.push_back(cur->end);
+            }
+            cur = cur->next;
+          }
+        }
+
+        Calculate_Max(v, sub_credits[count], sub_set[count],
+                      sub_indegree[count]);
         //更新学分与本学期课程
         if (abs(sub_credits[count] - average) < abs(last_credits - average)) {
           last_credits = sub_credits[count];
           last_set = sub_set[count];
           last_indegree = sub_indegree[count];
         }
-        // 走完一条路径后换另一条路径
+        // 走完一条路径后换用另一套副本
         count++;
-        sub_courses.clear();
+        v.clear();
+        single_combo.clear();
       }
     }
     store_arr.clear();
